@@ -221,7 +221,6 @@ static sf::Texture makeSprite(const char** map, int px, sf::Color color, int pad
 game::Game::Game(sf::RenderWindow& window)
     : m_window(window)
     , m_bgSprite(m_bgTex)
-    , m_snd{ m_sounds["shoot"] }
     , m_rng(std::random_device{}())
 {
     //Load font (Courier New Bold -> Consolas Bold -> Arial Bold)
@@ -418,30 +417,39 @@ void game::Game::initSprites()
 void game::Game::initSounds()
 {
     // Shoot
-    m_sounds["shoot"] = genTone(880, 0.09f, 0, 0.22f, -700);
+    m_soundBuffers["shoot"] = genTone(880, 0.09f, 0, 0.22f, -700);
+    m_sounds.try_emplace("shoot", m_soundBuffers.at("shoot"));
 
     // Hit
-    m_sounds["hit"] = genNoise(0.12f, 0.35f, 2500);
+    m_soundBuffers["hit"] = genNoise(0.12f, 0.35f, 2500);
+    m_sounds.try_emplace("hit", m_soundBuffers.at("hit"));
 
     // Boom = noise + low triangle
     {
         auto n = genNoise(0.5f, 0.4f, 900);
         auto t = genTone(90, 0.4f, 3, 0.3f, -50);
-        m_sounds["boom"] = mixBuffers(n, t);
+        m_soundBuffers["boom"] = mixBuffers(n, t);
+        m_sounds.try_emplace("boom", m_soundBuffers.at("boom"));
     }
 
     // Steps
     const float stepFreqs[] = { 112, 98, 83, 74 };
     for (int i = 0; i < 4; ++i)
-        m_sounds["step" + std::to_string(i)] = genTone(stepFreqs[i], 0.11f, 3, 0.5f, 0);
+    {
+        auto key = "step" + std::to_string(i);
+        m_soundBuffers[key] = genTone(stepFreqs[i], 0.11f, 3, 0.5f, 0);
+        m_sounds.try_emplace(key, m_soundBuffers.at(key));
+    }
 
     // UFO hum
-    m_sounds["ufo"] = genTone(580, 0.12f, 1, 0.15f, 220);
+    m_soundBuffers["ufo"] = genTone(580, 0.12f, 1, 0.15f, 220);
+    m_sounds.try_emplace("ufo", m_soundBuffers.at("ufo"));
 
     // Power-up arpeggio
     {
         const float freqs[] = { 440, 660, 880, 1320 };
-        m_sounds["power"] = genArpeggio(freqs, 4, 0.09f, 0.28f);
+        m_soundBuffers["power"] = genArpeggio(freqs, 4, 0.09f, 0.28f);
+        m_sounds.try_emplace("power", m_soundBuffers.at("power"));
     }
 
     // UFO kill
@@ -449,14 +457,16 @@ void game::Game::initSounds()
         auto n = genNoise(0.4f, 0.35f, 1500);
         const float freqs[] = { 1200, 900, 700 };
         auto a = genArpeggio(freqs, 3, 0.12f, 0.32f);
-        m_sounds["ufoKill"] = mixBuffers(n, a);
+        m_soundBuffers["ufoKill"] = mixBuffers(n, a);
+        m_sounds.try_emplace("ufoKill", m_soundBuffers.at("ufoKill"));
     }
 
     // Player die
     {
         auto n = genNoise(0.8f, 0.5f, 700);
         auto t = genTone(200, 0.7f, 2, 0.35f, -170);
-        m_sounds["playerDie"] = mixBuffers(n, t);
+        m_soundBuffers["playerDie"] = mixBuffers(n, t);
+        m_sounds.try_emplace("playerDie", m_soundBuffers.at("playerDie"));
     }
 }
 
@@ -1618,16 +1628,24 @@ int game::Game::randi(int a, int b)
     return dist(m_rng);
 }
 
-void game::Game::playSnd(const std::string& name)
-{
-    if (m_muted)
-        return;
-    auto it = m_sounds.find(name);
-    if (it == m_sounds.end())
-        return;
-    m_snd.setBuffer(it->second);
-    m_snd.play();
+void game::Game::playSnd(const std::string& name) {
+    if (m_muted) return;
+
+    auto bufferIt = m_soundBuffers.find(name);
+    if (bufferIt == m_soundBuffers.end()) return;
+
+    auto soundIt = m_sounds.find(name);
+    if (soundIt == m_sounds.end()) 
+    {
+        auto [insertedIt, success] = m_sounds.try_emplace(name, bufferIt->second);
+        insertedIt->second.play();
+    }
+    else 
+    {
+        soundIt->second.play();
+    }
 }
+
 
 bool game::Game::overlap(const Bullet& a, const Bullet& b)
 {

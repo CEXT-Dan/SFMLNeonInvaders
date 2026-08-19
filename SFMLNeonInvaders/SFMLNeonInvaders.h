@@ -169,8 +169,8 @@ namespace game
         // Resources
         sf::Font m_font;
         std::map<std::string, sf::Texture> m_sprites;
-        std::map<std::string, sf::SoundBuffer> m_sounds;
-        sf::Sound m_snd;
+        std::map<std::string, sf::SoundBuffer> m_soundBuffers;
+        std::map<std::string, sf::Sound> m_sounds;
 
         // Background texture (pre-rendered gradient)
         sf::Texture m_bgTex;
