@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="SFMLNeonInvaders/SFMLNeonInvaders.vcxproj" Id="a2f46d28-6fb8-43d0-a0e0-a501416478bc" />
+</Solution>
