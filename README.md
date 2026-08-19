@@ -1,4 +1,4 @@
-# SFMLNeonInvaders
+# SFML NeonInvaders
 
 A Retro Space Invaders in C++ & SFML!
 
