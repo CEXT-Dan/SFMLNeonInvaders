@@ -37,7 +37,7 @@ static sf::SoundBuffer genTone(float freq, float dur, int wave, float vol, float
         float v = 0.f;
         float p = fmodf(phase, game::kTAU);
 
-        if (p < 0.f) 
+        if (p < 0.f)
             p += game::kTAU;
 
         switch (wave)
@@ -343,9 +343,9 @@ int game::Game::run()
 
         // ===================== Update =====================
         float dt = m_clock.restart().asSeconds();
-        if (dt > 0.033f) 
+        if (dt > 0.033f)
             dt = 0.033f;
-        if (dt < 0.f)    
+        if (dt < 0.f)
             dt = 0.f;
         update(dt);
 
@@ -587,7 +587,7 @@ void game::Game::loadHi()
 {
     m_hi = 0;
     std::ifstream f("ni_hi.txt");
-    if (f.is_open()) 
+    if (f.is_open())
         f >> m_hi;
 }
 
@@ -1219,7 +1219,7 @@ void game::Game::drawText(const std::string& str, float x, float y, float size,
 
     if (align[0] == 'c')
         tx = x - b.size.x / 2.f - b.position.x;
-    else if (align[0] == 'r')  
+    else if (align[0] == 'r')
         tx = x - b.size.x - b.position.x;
 
     // Glow (draw 4 offset copies with low alpha)
@@ -1635,12 +1635,12 @@ void game::Game::playSnd(const std::string& name) {
     if (bufferIt == m_soundBuffers.end()) return;
 
     auto soundIt = m_sounds.find(name);
-    if (soundIt == m_sounds.end()) 
+    if (soundIt == m_sounds.end())
     {
         auto [insertedIt, success] = m_sounds.try_emplace(name, bufferIt->second);
         insertedIt->second.play();
     }
-    else 
+    else
     {
         soundIt->second.play();
     }
