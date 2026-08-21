@@ -56,6 +56,17 @@ namespace game
     struct Ufo { float x, y, w, h, vx; };
     struct Banner { std::string text, sub; float t; };
 
+    // Keep the buffer beside the sound that references it so their lifetimes
+    // are tied together.
+    struct SoundResource
+    {
+        explicit SoundResource(sf::SoundBuffer generatedBuffer)
+            : buffer(std::move(generatedBuffer)), sound(buffer) {}
+
+        sf::SoundBuffer buffer;
+        sf::Sound sound;
+    };
+
     enum class State { Menu, Playing, Paused, Over };
 
     // =========================================================================
@@ -167,8 +178,7 @@ namespace game
         // Resources
         sf::Font m_font;
         std::map<std::string, sf::Texture> m_sprites;
-        std::map<std::string, sf::SoundBuffer> m_soundBuffers;
-        std::map<std::string, sf::Sound> m_sounds;
+        std::map<std::string, SoundResource> m_sounds;
 
         // Background texture (pre-rendered gradient)
         sf::Texture m_bgTex;
